@@ -15,7 +15,11 @@ const Login = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const selectedRole = queryParams.get('role');
-    setRole(selectedRole);  // Set role from URL
+    if (selectedRole) {
+      setRole(selectedRole);
+    } else {
+      setErrorMessage("Invalid role. Please select a role.");
+    }
   }, [location]);
 
   const handleLogin = async (e) => {
@@ -24,50 +28,49 @@ const Login = () => {
     setErrorMessage('');
 
     if (!username || !password || !role) {
-      setErrorMessage('All fields are required');
-      setLoading(false);
-      return;
+        setErrorMessage('All fields are required');
+        setLoading(false);
+        return;
     }
 
     try {
-      const response = await fetch('http://localhost:5000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password,
-          role,
-        }),
-      });
+        const response = await fetch('http://localhost:5000/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password, role }),
+        });
 
-      const data = await response.json();
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Invalid credentials');
+        }
 
-      if (response.ok) {
-        // Successfully logged in
-        console.log('Login successful', data.token);
-        localStorage.setItem('token', data.token); // Store the token in localStorage or state
-        navigate(`/${role}-dashboard`); // Redirect to the corresponding dashboard
-      } else {
-        // Failed login
-        setErrorMessage(data.message || 'An error occurred');
-      }
+        const data = await response.json(); // ✅ Parse response JSON
+
+        if (data && data.token && data.userId) {
+            console.log('✅ Login successful', data);
+            localStorage.setItem('token', data.token); // ✅ Store token
+            navigate(`/${role}-dashboard/${data.userId}`); // ✅ Corrected userId reference
+        } else {
+            throw new Error('Invalid response from server');
+        }
     } catch (error) {
-      console.error('Error during login', error);
-      setErrorMessage('An error occurred during login');
+        console.error('❌ Login error:', error.message);
+        setErrorMessage(error.message);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="login-container">
-      {/* Left Section: Welcome Message and Description */}
+      {/* Left Section: Welcome Message */}
       <div className="welcome-section">
         <h1 className="welcome-title">Welcome to the Judiciary System</h1>
         <p className="welcome-text">
-          The Judiciary System Management platform is designed to streamline judicial processes, ensuring efficiency, transparency, and security for all users. Whether you're a lawyer, judge, or administrator, this system provides the tools you need to manage cases, documents, and communications effectively.
+          The Judiciary System Management platform is designed to streamline judicial processes, ensuring efficiency, transparency, and security for all users.
         </p>
         <p className="welcome-text">
           Please log in to access your account and continue your work.
@@ -100,11 +103,7 @@ const Login = () => {
             />
           </div>
           <button type="submit" disabled={loading} className="login-button">
-            {loading ? (
-              <span className="loading-text">Logging in...</span>
-            ) : (
-              'Login'
-            )}
+            {loading ? <span className="loading-text">Logging in...</span> : 'Login'}
           </button>
         </form>
         {errorMessage && <p className="error-message">{errorMessage}</p>}

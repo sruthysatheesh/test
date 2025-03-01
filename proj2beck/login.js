@@ -28,34 +28,64 @@ app.post("/login", (req, res) => {
         return res.status(400).json({ message: "Username, password, and role are required" });
     }
 
-    let table = role === "judge" ? "judges" : role === "lawyer" ? "lawyers" : role === "admin" ? "admins" : null;
+    let table = role === "judge" ? "judges" : 
+                role === "lawyer" ? "lawyers" : 
+                role === "admin" ? "admins" : null;
+                
     if (!table) return res.status(400).json({ message: "Invalid role" });
 
     const sql = `SELECT * FROM ${table} WHERE username = ?;`;
     db.query(sql, [username], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) return res.status(500).json({ message: "Database error", error: err.message });
 
         if (results.length === 0) return res.status(400).json({ message: "User not found" });
 
         const user = results[0];
 
-        // Compare password (this is a plaintext comparison, should use bcrypt in production)
+        // ✅ Plaintext password comparison
         if (password !== user.password) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generate JWT Token
+        // ✅ Generate JWT token
         const token = jwt.sign({ id: user.id, username: user.username, role }, "your_secret_key", { expiresIn: "1h" });
 
-        res.json({ message: "Login successful", token });
+        res.json({ 
+            message: "Login successful", 
+            token, 
+            userId: user.id, 
+            role: role 
+        });
     });
 });
+
+app.get("/dashboard/:id", (req, res) => {
+    const { id } = req.params;
+
+    const sql = `
+        SELECT 'judge' AS role, id, username FROM judges WHERE id = ?
+        UNION 
+        SELECT 'lawyer' AS role, id, username FROM lawyers WHERE id = ?
+        UNION 
+        SELECT 'admin' AS role, id, username FROM admins WHERE id = ?;
+    `;
+
+    db.query(sql, [id, id, id], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        if (results.length === 0) return res.status(404).json({ message: "User not found" });
+
+        res.json(results[0]); // Return user details
+    });
+});
+
+
 // ✅ Create User Route (Admin can add Judges & Lawyers)
 app.post("/users", (req, res) => {
-    const { username, password, role } = req.body;
-    
-    if (!username || !password || !role) {
-        return res.status(400).json({ message: "Username, password, and role are required" });
+    const { username, password, role, email, full_name, phone } = req.body;
+
+    if (!username || !password || !role || !email || !full_name || !phone) {
+        return res.status(400).json({ message: "All fields are required" });
     }
 
     let table = role === "judge" ? "judges" : 
@@ -64,25 +94,17 @@ app.post("/users", (req, res) => {
 
     if (!table) return res.status(400).json({ message: "Invalid role" });
 
-    const sql = `INSERT INTO ${table} (username, password) VALUES (?, ?);`;
-    db.query(sql, [username, password], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
+    const sql = `INSERT INTO ${table} (username, password, email, full_name, phone) VALUES (?, ?, ?, ?, ?);`;
+
+    db.query(sql, [username, password, email, full_name, phone], (err, result) => {
+        if (err) {
+            console.error("❌ Error inserting user:", err); // Log the full error
+            return res.status(500).json({ error: err.message });
+        }
         res.json({ message: `${role} created successfully`, userId: result.insertId });
     });
 });
 
-// ✅ Get All Users (For Admin Dashboard)
-app.get("/users", (req, res) => {
-    const sql = `SELECT 'judge' AS role, id, username FROM judges 
-                 UNION 
-                 SELECT 'lawyer' AS role, id, username FROM lawyers;`;
-
-    db.query(sql, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        res.json(results);
-    });
-});
 app.delete("/users/:id", (req, res) => {
     const { id } = req.params;
 
@@ -124,6 +146,23 @@ app.delete("/users/:id", (req, res) => {
     );
 });
 
+app.get("/users", (req, res) => {
+    const sql = `
+    SELECT id, username, email, full_name, phone, 'judge' AS role FROM judges
+    UNION ALL
+    SELECT id, username, email, full_name, phone, 'lawyer' AS role FROM lawyers
+    UNION ALL
+    SELECT id, username, email, full_name, phone, 'admin' AS role FROM admins;
+`;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("❌ Error fetching users:", err); // Log error details
+            return res.status(500).json({ message: "Database error", error: err.message });
+        }
+        res.json(results);
+    });
+});
 
 
 

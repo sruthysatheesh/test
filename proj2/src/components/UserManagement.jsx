@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./user-management.css";
+
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ username: "", password: "", role: "judge" });
+  const [newUser, setNewUser] = useState({ username: "", password: "", email: "", full_name:"", phone:"", role: "judge" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null); // State to store selected user details
 
   // 🔹 Fetch Users from Backend
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token"); // Get JWT token
+      const token = localStorage.getItem("token");
       const res = await axios.get("http://localhost:5000/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -34,11 +37,11 @@ const UserManagement = () => {
       await axios.post("http://localhost:5000/users", newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setNewUser({ username: "", password: "", role: "judge" });
+      
+      setNewUser({ username: "", password: "", email: "", full_name: "", phone: "", role: "judge" });
       fetchUsers(); // Refresh user list
     } catch (err) {
-      setError("Error creating user. Please try again.");
-      console.error("Error creating user:", err.response?.data || err.message);
+      setError(err.response?.data?.message || "Error creating user. Please try again.");
     }
   };
 
@@ -51,10 +54,17 @@ const UserManagement = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers(); // Refresh user list
+      if (selectedUser?.id === id) setSelectedUser(null); // Clear selected user if deleted
     } catch (err) {
       setError("Error deleting user. Please try again.");
       console.error("Error deleting user:", err.response?.data || err.message);
     }
+  };
+
+  // 🔹 Handle View User
+  const handleViewUser = (id) => {
+    const user = users.find((u) => u.id === id);
+    setSelectedUser(user || null); // Set selected user for display
   };
 
   return (
@@ -73,6 +83,18 @@ const UserManagement = () => {
         <input type="password" placeholder="Password" name="password" 
           value={newUser.password} 
           onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} />
+
+        <input type="text" placeholder="Email" name="email" 
+          value={newUser.email} 
+          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} />
+          
+        <input type="text" placeholder="Full Name" name="full_name" 
+          value={newUser.full_name} 
+          onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} />
+
+        <input type="text" placeholder="Phone" name="phone" 
+          value={newUser.phone} 
+          onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} />
 
         <select name="role" value={newUser.role} 
           onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
@@ -95,11 +117,25 @@ const UserManagement = () => {
             users.map((user) => (
               <li key={user.id}>
                 {user.username} ({user.role}) 
-                <button onClick={() => handleDeleteUser(user.id)}> Delete</button>
+                <button onClick={() => handleViewUser(user.id)}>View</button>
               </li>
             ))
           )}
         </ul>
+      )}
+
+      {/* 🔹 Display Selected User Details */}
+      {selectedUser && (
+        <div style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
+          <h4>📌 User Details</h4>
+          <p><strong>👤 Username:</strong> {selectedUser.username}</p>
+          <p><strong>📧 Email:</strong> {selectedUser.email}</p>
+          <p><strong>🏷 Full Name:</strong> {selectedUser.full_name}</p>
+          <p><strong>📞 Phone:</strong> {selectedUser.phone}</p>
+          <p><strong>🏛 Role:</strong> {selectedUser.role}</p>
+          <button onClick={() => setSelectedUser(null)}>Close</button>
+          <button onClick={() => handleDeleteUser(selectedUser.id)}>Delete</button>
+        </div>
       )}
     </div>
   );
