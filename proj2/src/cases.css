@@ -1,0 +1,158 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+  font-family: 'Arial', sans-serif; /* Clean and professional font */
+  background-color: #f9f9f9; /* Soft light gray background */
+  color: #111; /* Deep black for text */
+  line-height: 1.6;
+  padding: 20px;
+  text-align: center; /* Center-align body content */
+}
+
+/* Header Styling */
+header {
+  background-color: #111; /* Deep black */
+  color: #fff; /* Crisp white text */
+  padding: 20px;
+  width: 100%;
+  margin-bottom: 20px;
+  text-align: center; /* Center-align header text */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+header nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center; /* Center-align navigation links */
+  gap: 15px;
+  padding: 0;
+}
+
+header nav ul li a {
+  text-decoration: none;
+  color: #fff; /* White text */
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #333; /* Dark gray */
+  transition: background-color 0.3s ease;
+}
+
+header nav ul li a:hover {
+  background-color: #555; /* Lighter gray for hover */
+  color: #fff; /* Keep text white */
+}
+
+/* Main Section Styling */
+main {
+  display: flex;
+  flex-direction: column; /* Stacked vertical layout */
+  gap: 20px;
+  justify-content: center; /* Center main sections */
+  align-items: center; /* Align sections to the center */
+  text-align: left; /* Left-align content within sections */
+}
+
+section {
+  background-color: #fff; /* White for content sections */
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px; /* Limit width for readability */
+}
+
+/* Form Styling */
+form {
+  display: flex;
+  flex-direction: column; /* Stack form elements */
+  gap: 15px;
+  align-items: center; /* Center-align form elements */
+  text-align: left; /* Left-align form labels */
+  width: 100%; /* Ensure proper width */
+  max-width: 400px; /* Limit form width */
+  margin: 0 auto; /* Center form horizontally */
+}
+
+label {
+  font-weight: bold;
+  color: #111; /* Deep black */
+  align-self: flex-start; /* Align labels to the left */
+}
+
+input, select, button {
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #333; /* Dark gray border */
+  border-radius: 8px;
+  width: 100%; /* Full width for inputs and selects */
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #111; /* Black focus border */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+button {
+  background-color: #111; /* Black background */
+  color: #fff; /* White text */
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: auto; /* Keep buttons compact */
+}
+
+button:hover {
+  background-color: #333; /* Dark gray hover */
+  color: #fff; /* Keep text white */
+}
+
+/* Cases List Styling */
+.cases-list {
+  text-align: center; /* Center-align the list container */
+  width: 100%;
+  max-width: 600px; /* Limit width for readability */
+}
+
+.cases-list ul {
+  list-style: none;
+  margin-top: 15px;
+  padding-left: 0;
+}
+
+.cases-list ul li {
+  background-color: #f9f9f9; /* Light gray */
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #111; /* Black text */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer Styling */
+footer {
+  text-align: center;
+  margin-top: 20px;
+  color: #333; /* Dark gray text */
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+/* Additional Alignment Enhancements */
+footer, header, .cases-list, main, form {
+  margin: 0 auto; /* Center all main sections horizontally */
+  max-width: 100%; /* Limit the content width */
+}
