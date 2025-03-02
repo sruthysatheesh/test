@@ -7,18 +7,20 @@ const AdminProfile = () => {
   const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "" });
   const [loginHistory, setLoginHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Use React Router for navigation
+  const navigate = useNavigate();
+
+  const adminId = localStorage.getItem("adminId"); // Store admin ID in localStorage after login
 
   useEffect(() => {
     fetchAdminProfile();
     fetchLoginHistory();
   }, []);
 
-  // 🔹 Fetch Admin Profile
+  // ✅ Fetch Admin Profile (Corrected API URL)
   const fetchAdminProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/admin/profile", {
+      const res = await axios.get(`http://localhost:5000/admin/profile/${adminId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAdmin(res.data);
@@ -27,11 +29,11 @@ const AdminProfile = () => {
     }
   };
 
-  // 🔹 Fetch Login History
+  // ✅ Fetch Login History (Backend does not have this yet)
   const fetchLoginHistory = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/admin/login-history", {
+      const res = await axios.get(`http://localhost:5000/admin/login-history/${adminId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLoginHistory(res.data);
@@ -42,49 +44,60 @@ const AdminProfile = () => {
     }
   };
 
-  // 🔹 Handle Profile Change
+  // ✅ Handle Profile Change
   const handleChange = (e) => {
     setAdmin({ ...admin, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Handle Password Change
+  // ✅ Handle Password Change
   const handlePasswordChange = (e) => {
     setPasswords({ ...passwords, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Update Profile
+  // ✅ Update Profile (Corrected API URL)
   const updateProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put("http://localhost:5000/admin/profile/update", admin, {
+      const adminId = localStorage.getItem("adminId"); // Ensure this exists!
+      if (!adminId) return alert("❌ Admin ID is missing!");
+  
+      const res = await axios.put(`http://localhost:5000/admin/profile/${adminId}`, admin, {
         headers: { Authorization: `Bearer ${token}` },
       });
+  
       alert("✅ Profile updated successfully!");
     } catch (err) {
       console.error("Error updating profile:", err.response?.data || err.message);
-      alert("❌ Failed to update profile.");
+      alert("❌ Failed to update profile: " + (err.response?.data?.message || err.message));
     }
   };
+  
 
-  // 🔹 Change Password
+  // ✅ Change Password (Corrected API URL)
   const changePassword = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put("http://localhost:5000/admin/password/change", passwords, {
+      const adminId = localStorage.getItem("adminId"); // Ensure this exists!
+      if (!adminId) return alert("❌ Admin ID is missing!");
+  
+      const res = await axios.put(`http://localhost:5000/admin/password/${adminId}`, passwords, {
         headers: { Authorization: `Bearer ${token}` },
       });
+  
       alert("✅ Password changed successfully!");
       setPasswords({ oldPassword: "", newPassword: "" });
     } catch (err) {
       console.error("Error changing password:", err.response?.data || err.message);
-      alert("❌ Failed to change password.");
+      alert("❌ Failed to change password: " + (err.response?.data?.message || err.message));
     }
   };
+  
 
-  // 🔹 Handle Logout
+  // ✅ Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/"); // Redirect using React Router
+    localStorage.removeItem("adminId");
+    navigate("/");
   };
 
   return (

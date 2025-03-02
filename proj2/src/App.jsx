@@ -5,6 +5,7 @@ import Login from "./Login";
 import JudgeDashboard from "./JudgeDashboard";
 import LawyerDashboard from "./LawyerDashboard";
 import AdminDashboard from "./AdminDashboard";
+import ClerkDashboard from "./ClerkDashboard"; // ✅ Added missing import
 
 const App = () => {
   return (
@@ -12,9 +13,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<RoleSelection />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/judge-dashboard/*" element={<JudgeDashboard />} /> {/* ✅ Ensures Judge has sub-routes */}
-        <Route path="/lawyer-dashboard/*" element={<LawyerDashboard />} /> {/* ✅ Ensures Lawyer has sub-routes */}
-        <Route path="/admin-dashboard/*" element={<AdminDashboard />} /> {/* ✅ More specific path */}
+        <Route path="/judge-dashboard/*" element={<JudgeDashboard />} />
+        <Route path="/lawyer-dashboard/*" element={<LawyerDashboard />} />
+        <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
+        <Route path="/clerk-dashboard/*" element={<ClerkDashboard />} /> {/* ✅ Now works correctly */}
       </Routes>
     </Router>
   );

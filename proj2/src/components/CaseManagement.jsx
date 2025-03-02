@@ -7,11 +7,10 @@ const CaseManagement = () => {
     const [newCaseActions, setNewCaseActions] = useState("");
     const [selectedJudgeId, setSelectedJudgeId] = useState("");
     const [selectedLawyerId, setSelectedLawyerId] = useState("");
-    const [caseDocuments, setCaseDocuments] = useState([]); // ✅ Multiple file uploads
+    const [caseDocuments, setCaseDocuments] = useState([]);
     const [judges, setJudges] = useState([]);
     const [lawyers, setLawyers] = useState([]);
     const [cases, setCases] = useState([]);
-    const [editingCase, setEditingCase] = useState(null);
 
     useEffect(() => {
         fetchJudges();
@@ -19,27 +18,39 @@ const CaseManagement = () => {
         fetchCases();
     }, []);
 
+    // Fetch Judges with Debugging
     const fetchJudges = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/judges");
+            const response = await axios.get("http://localhost:5000/cases/judges");
+            console.log("✅ Judges Data:", response.data); // Debugging log
+            if (!response.data.length) {
+                console.warn("⚠ No judges returned from API!");
+            }
             setJudges(response.data);
         } catch (error) {
             console.error("❌ Failed to fetch judges:", error);
         }
     };
 
+    // Fetch Lawyers with Debugging
     const fetchLawyers = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/lawyers");
+            const response = await axios.get("http://localhost:5000/cases/lawyers");
+            console.log("✅ Lawyers Data:", response.data); // Debugging log
+            if (!response.data.length) {
+                console.warn("⚠ No lawyers returned from API!");
+            }
             setLawyers(response.data);
         } catch (error) {
             console.error("❌ Failed to fetch lawyers:", error);
         }
     };
 
+    // Fetch Cases with Debugging
     const fetchCases = async () => {
         try {
             const response = await axios.get("http://localhost:5000/cases");
+            console.log("✅ Cases Data:", response.data); // Debugging log
             setCases(response.data);
         } catch (error) {
             console.error("❌ Failed to fetch cases:", error);
@@ -47,7 +58,7 @@ const CaseManagement = () => {
     };
 
     const handleFileChange = (e) => {
-        setCaseDocuments([...e.target.files]); // ✅ Handle multiple files
+        setCaseDocuments([...e.target.files]);
     };
 
     const handleAddCase = async () => {
@@ -93,23 +104,30 @@ const CaseManagement = () => {
                     <option value="Pending">Pending</option>
                     <option value="Dismissed">Dismissed</option>
                 </select>
+
+                {/* ✅ Debugging for Judges Dropdown */}
                 <select value={selectedJudgeId} onChange={(e) => setSelectedJudgeId(e.target.value)}>
-                <option value="">Select Judge</option>
-                    {judges.length === 0 && <option disabled>No judges available</option>}
+                    <option value="">Select Judge</option>
+                    {judges.length === 0 && <option disabled>⚠ No judges available</option>}
                     {judges.map((judge) => (
-                 <option key={judge.id} value={judge.id}>{judge.full_name}</option>
-                     ))}
-                </select>
-                <select value={selectedLawyerId} onChange={(e) => setSelectedLawyerId(e.target.value)}>
-                    <option value="">Select Lawyer</option>
-                    {lawyers.map((lawyer) => (
-                        <option key={lawyer.id} value={lawyer.id}>{lawyer.full_name}</option>
+                        <option key={judge.id} value={judge.id}>{judge.username || judge.full_name}</option>
                     ))}
                 </select>
+
+                {/* ✅ Debugging for Lawyers Dropdown */}
+                <select value={selectedLawyerId} onChange={(e) => setSelectedLawyerId(e.target.value)}>
+                    <option value="">Select Lawyer</option>
+                    {lawyers.length === 0 && <option disabled>⚠ No lawyers available</option>}
+                    {lawyers.map((lawyer) => (
+                        <option key={lawyer.id} value={lawyer.id}>{lawyer.username || lawyer.full_name}</option>
+                    ))}
+                </select>
+
                 <input type="text" placeholder="Enter Case Actions" value={newCaseActions} onChange={(e) => setNewCaseActions(e.target.value)} />
                 <input type="file" multiple onChange={handleFileChange} />
                 <button onClick={handleAddCase}>Add Case</button>
             </div>
+
             <h3>Cases List</h3>
             <table border="1">
                 <thead>
@@ -129,15 +147,19 @@ const CaseManagement = () => {
                             <td>{caseItem.case_id}</td>
                             <td>{caseItem.case_title}</td>
                             <td>{caseItem.status}</td>
-                            <td>{caseItem.judge_name}</td>
-                            <td>{caseItem.lawyer_name}</td>
+                            <td>{caseItem.judge_name || "⚠ No Judge Assigned"}</td>
+                            <td>{caseItem.lawyer_name || "⚠ No Lawyer Assigned"}</td>
                             <td>{caseItem.case_actions}</td>
                             <td>
-                                {caseItem.documents.map((doc, index) => (
-                                    <div key={index}>
-                                        <a href={doc} target="_blank" rel="noopener noreferrer">Download {index + 1}</a>
-                                    </div>
-                                ))}
+                                {caseItem.documents?.length > 0 ? (
+                                    caseItem.documents.map((doc, index) => (
+                                        <div key={index}>
+                                            <a href={doc} target="_blank" rel="noopener noreferrer">Download {index + 1}</a>
+                                        </div>
+                                    ))
+                                ) : (
+                                    "⚠ No Documents"
+                                )}
                             </td>
                         </tr>
                     ))}
