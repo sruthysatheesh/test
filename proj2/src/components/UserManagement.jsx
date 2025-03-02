@@ -98,6 +98,7 @@ const UserManagement = () => {
 
         <select name="role" value={newUser.role} 
           onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
+          <option value="clerk">Clerk</option>
           <option value="judge">Judge</option>
           <option value="lawyer">Lawyer</option>
           <option value="admin">Admin</option>

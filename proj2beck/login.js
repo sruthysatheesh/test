@@ -30,6 +30,7 @@ app.post("/login", (req, res) => {
 
     let table = role === "judge" ? "judges" : 
                 role === "lawyer" ? "lawyers" : 
+                role === "clerk" ? "clerk" :
                 role === "admin" ? "admins" : null;
                 
     if (!table) return res.status(400).json({ message: "Invalid role" });
@@ -67,6 +68,8 @@ app.get("/dashboard/:id", (req, res) => {
         UNION 
         SELECT 'lawyer' AS role, id, username FROM lawyers WHERE id = ?
         UNION 
+        SELECT 'clerk' AS role, id, username FROM clerk WHERE id = ?
+        UNION
         SELECT 'admin' AS role, id, username FROM admins WHERE id = ?;
     `;
 
@@ -90,6 +93,7 @@ app.post("/users", (req, res) => {
 
     let table = role === "judge" ? "judges" : 
                 role === "lawyer" ? "lawyers" : 
+                role === "clerk" ? "clerk" :
                 role === "admin" ? "admins" : null;
 
     if (!table) return res.status(400).json({ message: "Invalid role" });
@@ -108,10 +112,12 @@ app.post("/users", (req, res) => {
 app.delete("/users/:id", (req, res) => {
     const { id } = req.params;
 
-    // Step 1: Check if the user exists in either table
+    // Step 1: Check if the user exists in judges, lawyers, or clerk
     db.query(
-        "SELECT 'judge' AS role FROM judges WHERE id = ? UNION SELECT 'lawyer' AS role FROM lawyers WHERE id = ?",
-        [id, id],
+        `SELECT 'judge' AS role FROM judges WHERE id = ?
+        UNION SELECT 'lawyer' AS role FROM lawyers WHERE id = ?
+        UNION SELECT 'clerk' AS role FROM clerk WHERE id = ?`,
+        [id, id, id],
         (err, results) => {
             if (err) {
                 console.error("❌ Error checking user:", err);
@@ -122,14 +128,18 @@ app.delete("/users/:id", (req, res) => {
                 return res.status(404).json({ message: "User not found." });
             }
 
-            // Step 2: Get the correct table based on the role
+            // Step 2: Determine the correct table based on role
             const role = results[0].role;
-            const table = role === "judge" ? "judges" : "lawyers";
+            const table = role === "judge" ? "judges" :
+                          role === "lawyer" ? "lawyers" :
+                          role === "clerk" ? "clerk" : null;
+
+            if (!table) return res.status(400).json({ message: "Invalid user role." });
 
             // Step 3: Log for debugging
-            console.log(`Deleting from table: ${table}, ID: ${id}`);
+            console.log(`🗑️ Deleting from table: ${table}, ID: ${id}`);
 
-            // Step 4: Now delete from the correct table
+            // Step 4: Execute DELETE query
             db.query(`DELETE FROM ${table} WHERE id = ?`, [id], (err, deleteResult) => {
                 if (err) {
                     console.error("❌ Error deleting user:", err);
@@ -146,13 +156,16 @@ app.delete("/users/:id", (req, res) => {
     );
 });
 
+
 app.get("/users", (req, res) => {
     const sql = `
     SELECT id, username, email, full_name, phone, 'judge' AS role FROM judges
     UNION ALL
     SELECT id, username, email, full_name, phone, 'lawyer' AS role FROM lawyers
     UNION ALL
-    SELECT id, username, email, full_name, phone, 'admin' AS role FROM admins;
+    SELECT id, username, email, full_name, phone, 'admin' AS role FROM admins
+    UNION ALL
+    SELECT id, username, email, full_name, phone, 'clerk' AS role FROM clerk;
 `;
 
     db.query(sql, (err, results) => {

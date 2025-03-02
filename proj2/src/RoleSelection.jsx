@@ -21,6 +21,18 @@ const RoleSelection = () => {
 
       {/* Role Cards Section */}
       <div className="role-cards">
+
+      <div
+          className="role-card clerk"
+          onClick={() => handleRoleSelection('clerk')}
+        >
+          <div className="role-icon">
+            <i className="fas fa-gavel"></i>
+          </div>
+          <h2 className="role-title">Clerk</h2>
+          <p className="role-description">Manage cases, upload documents and schedule hearings.</p>
+        </div>
+
         <div
           className="role-card lawyer"
           onClick={() => handleRoleSelection('lawyer')}
