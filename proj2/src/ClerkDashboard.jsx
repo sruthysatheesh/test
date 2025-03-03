@@ -1,25 +1,21 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import CaseManagement from "./components/CaseManagement";
-import CourtSessions from "./components/CourtSessions";
+import UserManagement from "./components/UserManagement";
 import ReportsDashboard from "./components/ReportsDashboard";
-import Documents from "./components/Documents";
-import Notifications from "./components/Notifications";
-import "./AdminDashboard.css"; // ✅ Changed the CSS filename for clarity
+import AdminProfile from "./components/AdminProfile";
+import "./AdminDashboard.css"; // Import the CSS file
 
-const ClerkDashboard = () => {
+const AdminDashboard = () => {
   return (
-    <div className="clerk-dashboard">
+    <div className="admin-dashboard">
       {/* Sidebar */}
       <div className="sidebar">
-        <h1>Clerk Dashboard</h1> {/* ✅ Fixed the title */}
+        <h1>Admin Dashboard</h1>
         <nav>
           <ul>
-            <li><Link to="/clerk-dashboard/cases">Case Management</Link></li> {/* ✅ Fixed URL path */}
-            <li><Link to="/clerk-dashboard/sessions">Court Sessions</Link></li>
-            <li><Link to="/clerk-dashboard/reports">Reports</Link></li>
-            <li><Link to="/clerk-dashboard/documents">Documents</Link></li>
-            <li><Link to="/clerk-dashboard/notifications">Notifications</Link></li>
+            <li><Link to="/admin-dashboard/users">User Management</Link></li>
+            <li><Link to="/admin-dashboard/reports">Reports</Link></li>
+            <li><Link to="/admin-dashboard/profile">Admin Profile</Link></li>
           </ul>
         </nav>
       </div>
@@ -27,17 +23,13 @@ const ClerkDashboard = () => {
       {/* Main Content */}
       <div className="main-content">
         <Routes>
-          <Route path="cases" element={<CaseManagement />} />
-          <Route path="sessions/*" element={<CourtSessions />} >
-            <Route path="cases" element={<CaseManagement />} />
-          </Route>
+          <Route path="users" element={<UserManagement />} />
           <Route path="reports" element={<ReportsDashboard />} />
-          <Route path="documents" element={<Documents />} />
-          <Route path="notifications" element={<Notifications />} />
+          <Route path="profile" element={<AdminProfile />} />
         </Routes>
       </div>
     </div>
   );
 };
 
-export default ClerkDashboard;
+export default AdminDashboard;
