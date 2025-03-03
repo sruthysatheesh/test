@@ -16,6 +16,18 @@ const db = mysql.createPool({
     multipleStatements: true
 });
 
+// ✅ Configure Multer for File Uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/"); // Save files in an 'uploads' folder
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+    },
+});
+
+const upload = multer({ storage });
+
 // ✅ Fetch Judges
 router.get("/judges", (req, res) => {
     db.query("SELECT id, full_name FROM judges", (err, results) => {
@@ -49,11 +61,34 @@ router.get("/", (req, res) => {
             console.error("❌ Database error fetching cases:", err);
             return res.status(500).json({ error: "Database error", details: err.message });
         }
-        if (results.length === 0) {
-            console.warn("⚠ No cases found in the database!");
-        }
         res.json(results);
     });
 });
+
+// ✅ Add Case (Handles File Uploads)
+router.post("/", upload.array("documents"), (req, res) => {
+    const { case_title, status, judge_id, lawyer_id, case_actions } = req.body;
+
+    if (!case_title || !status || !judge_id || !lawyer_id || !case_actions) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const sql = `
+        INSERT INTO cases (case_title, status, judge_id, lawyer_id, case_actions, created_at)
+        VALUES (?, ?, ?, ?, ?, NOW());
+    `;
+    const values = [case_title, status, judge_id, lawyer_id, case_actions];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("❌ Error inserting case:", err);
+            return res.status(500).json({ error: "Database error", details: err.message });
+        }
+
+        console.log("✅ Case added:", result.insertId);
+        res.json({ message: "Case added successfully", case_id: result.insertId });
+    });
+});
+
 // ✅ Export router
 module.exports = router;
