@@ -18,52 +18,47 @@ const CaseManagement = () => {
         fetchCases();
     }, []);
 
-    // Fetch Judges with Debugging
+    // ✅ Fetch Judges
     const fetchJudges = async () => {
         try {
             const response = await axios.get("http://localhost:5000/cases/judges");
-            console.log("✅ Judges Data:", response.data); // Debugging log
-            if (!response.data.length) {
-                console.warn("⚠ No judges returned from API!");
-            }
             setJudges(response.data);
         } catch (error) {
-            console.error("❌ Failed to fetch judges:", error);
+            console.error("❌ Error fetching judges:", error.response?.data || error);
         }
     };
 
-    // Fetch Lawyers with Debugging
+    // ✅ Fetch Lawyers
     const fetchLawyers = async () => {
         try {
             const response = await axios.get("http://localhost:5000/cases/lawyers");
-            console.log("✅ Lawyers Data:", response.data); // Debugging log
-            if (!response.data.length) {
-                console.warn("⚠ No lawyers returned from API!");
-            }
             setLawyers(response.data);
         } catch (error) {
-            console.error("❌ Failed to fetch lawyers:", error);
+            console.error("❌ Error fetching lawyers:", error.response?.data || error);
         }
     };
 
-    // Fetch Cases with Debugging
+    // ✅ Fetch Cases
     const fetchCases = async () => {
         try {
             const response = await axios.get("http://localhost:5000/cases");
-            console.log("✅ Cases Data:", response.data); // Debugging log
+            console.log("✅ Cases Data Received:", response.data); // Debug log
             setCases(response.data);
         } catch (error) {
-            console.error("❌ Failed to fetch cases:", error);
+            console.error("❌ Error fetching cases:", error.response?.data || error);
+            alert("Error fetching cases. Check API connection.");
         }
     };
 
+    // ✅ Handle File Selection
     const handleFileChange = (e) => {
         setCaseDocuments([...e.target.files]);
     };
 
+    // ✅ Add Case
     const handleAddCase = async () => {
-        if (!newCaseTitle || !newCaseStatus || !selectedJudgeId || !selectedLawyerId || !newCaseActions || caseDocuments.length === 0) {
-            alert("All fields are required, including at least one document!");
+        if (!newCaseTitle || !selectedJudgeId || !selectedLawyerId || !newCaseActions || caseDocuments.length === 0) {
+            alert("❌ All fields are required!");
             return;
         }
 
@@ -76,7 +71,7 @@ const CaseManagement = () => {
         caseDocuments.forEach((doc) => formData.append("documents", doc));
 
         try {
-            await axios.post("http://localhost:5001/cases", formData, {
+            await axios.post("http://localhost:5000/cases", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
@@ -88,7 +83,7 @@ const CaseManagement = () => {
             setCaseDocuments([]);
             fetchCases();
         } catch (err) {
-            console.error("❌ Error adding case:", err);
+            console.error("❌ Error adding case:", err.response?.data || err);
         }
     };
 
@@ -105,21 +100,17 @@ const CaseManagement = () => {
                     <option value="Dismissed">Dismissed</option>
                 </select>
 
-                {/* ✅ Debugging for Judges Dropdown */}
                 <select value={selectedJudgeId} onChange={(e) => setSelectedJudgeId(e.target.value)}>
                     <option value="">Select Judge</option>
-                    {judges.length === 0 && <option disabled>⚠ No judges available</option>}
                     {judges.map((judge) => (
-                        <option key={judge.id} value={judge.id}>{judge.username || judge.full_name}</option>
+                        <option key={judge.id} value={judge.id}>{judge.full_name || judge.username}</option>
                     ))}
                 </select>
 
-                {/* ✅ Debugging for Lawyers Dropdown */}
                 <select value={selectedLawyerId} onChange={(e) => setSelectedLawyerId(e.target.value)}>
                     <option value="">Select Lawyer</option>
-                    {lawyers.length === 0 && <option disabled>⚠ No lawyers available</option>}
                     {lawyers.map((lawyer) => (
-                        <option key={lawyer.id} value={lawyer.id}>{lawyer.username || lawyer.full_name}</option>
+                        <option key={lawyer.id} value={lawyer.id}>{lawyer.full_name || lawyer.username}</option>
                     ))}
                 </select>
 
@@ -138,31 +129,23 @@ const CaseManagement = () => {
                         <th>Judge</th>
                         <th>Lawyer</th>
                         <th>Case Actions</th>
-                        <th>Documents</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {cases.map((caseItem) => (
-                        <tr key={caseItem.case_id}>
-                            <td>{caseItem.case_id}</td>
-                            <td>{caseItem.case_title}</td>
-                            <td>{caseItem.status}</td>
-                            <td>{caseItem.judge_name || "⚠ No Judge Assigned"}</td>
-                            <td>{caseItem.lawyer_name || "⚠ No Lawyer Assigned"}</td>
-                            <td>{caseItem.case_actions}</td>
-                            <td>
-                                {caseItem.documents?.length > 0 ? (
-                                    caseItem.documents.map((doc, index) => (
-                                        <div key={index}>
-                                            <a href={doc} target="_blank" rel="noopener noreferrer">Download {index + 1}</a>
-                                        </div>
-                                    ))
-                                ) : (
-                                    "⚠ No Documents"
-                                )}
-                            </td>
-                        </tr>
-                    ))}
+                    {cases.length === 0 ? (
+                        <tr><td colSpan="6">⚠ No Cases Found</td></tr>
+                    ) : (
+                        cases.map((caseItem, index) => (
+                            <tr key={index}>
+                                <td>{caseItem.case_id}</td>
+                                <td>{caseItem.case_title}</td>
+                                <td>{caseItem.status}</td>
+                                <td>{caseItem.judge_name || "⚠ No Judge Assigned"}</td>
+                                <td>{caseItem.lawyer_name || "⚠ No Lawyer Assigned"}</td>
+                                <td>{caseItem.case_actions}</td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
         </div>
