@@ -16,17 +16,9 @@ const db = mysql.createPool({
     multipleStatements: true
 });
 
-// ✅ Configure Multer for File Uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/"); // Save files in an 'uploads' folder
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + "-" + file.originalname);
-    },
-});
-
-const upload = multer({ storage });
+// ✅ Multer Memory Storage (No Disk Storage)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // ✅ Fetch Judges
 router.get("/judges", (req, res) => {
@@ -65,28 +57,41 @@ router.get("/", (req, res) => {
     });
 });
 
-// ✅ Add Case (Handles File Uploads)
-router.post("/", upload.array("documents"), (req, res) => {
-    const { case_title, status, judge_id, lawyer_id, case_actions } = req.body;
+// ✅ Add Case with File Upload
+router.post("/", upload.array("documents", 5), (req, res) => {
+    const { case_title, judge_id, lawyer_id, status, case_actions } = req.body;
 
-    if (!case_title || !status || !judge_id || !lawyer_id || !case_actions) {
+    if (!case_title || !judge_id || !lawyer_id || !status) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const sql = `
-        INSERT INTO cases (case_title, status, judge_id, lawyer_id, case_actions, created_at)
-        VALUES (?, ?, ?, ?, ?, NOW());
-    `;
-    const values = [case_title, status, judge_id, lawyer_id, case_actions];
+    const sql = `INSERT INTO cases (case_title, judge_id, lawyer_id, status, case_actions, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
 
-    db.query(sql, values, (err, result) => {
+    db.query(sql, [case_title, judge_id, lawyer_id, status, case_actions], (err, result) => {
         if (err) {
             console.error("❌ Error inserting case:", err);
             return res.status(500).json({ error: "Database error", details: err.message });
         }
 
-        console.log("✅ Case added:", result.insertId);
-        res.json({ message: "Case added successfully", case_id: result.insertId });
+        const case_id = result.insertId;
+        const uploadedFiles = req.files;
+
+        if (uploadedFiles.length === 0) {
+            return res.json({ message: "Case added successfully", case_id });
+        }
+
+        // ✅ Insert Documents into `case_documents` table
+        const documentSql = `INSERT INTO case_documents (case_id, file_name, file_data, created_at) VALUES ?`;
+        const documentValues = uploadedFiles.map((file) => [case_id, file.originalname, file.buffer, new Date()]);
+
+        db.query(documentSql, [documentValues], (err) => {
+            if (err) {
+                console.error("❌ Error inserting documents:", err);
+                return res.status(500).json({ error: "Database error (documents)", details: err.message });
+            }
+
+            res.json({ message: "Case and documents added successfully", case_id });
+        });
     });
 });
 

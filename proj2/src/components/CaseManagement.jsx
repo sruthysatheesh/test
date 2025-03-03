@@ -103,14 +103,14 @@ const CaseManagement = () => {
                 <select value={selectedJudgeId} onChange={(e) => setSelectedJudgeId(e.target.value)}>
                     <option value="">Select Judge</option>
                     {judges.map((judge) => (
-                        <option key={judge.id} value={judge.id}>{judge.full_name}</option>
+                        <option key={judge.id} value={judge.id}>{judge.full_name || judge.username}</option>
                     ))}
                 </select>
 
                 <select value={selectedLawyerId} onChange={(e) => setSelectedLawyerId(e.target.value)}>
                     <option value="">Select Lawyer</option>
                     {lawyers.map((lawyer) => (
-                        <option key={lawyer.id} value={lawyer.id}>{lawyer.full_name}</option>
+                        <option key={lawyer.id} value={lawyer.id}>{lawyer.full_name || lawyer.username}</option>
                     ))}
                 </select>
 

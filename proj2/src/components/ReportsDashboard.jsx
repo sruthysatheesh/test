@@ -4,10 +4,11 @@ import axios from "axios";
 const ReportsDashboard = () => {
   const [reports, setReports] = useState({
     totalCases: 0,
-    activeCases: 0,
-    completedCases: 0,
+    openCases: 0,
+    closedCases: 0,
     pendingCases: 0,
-    userActivity: [],
+    dismissedCases: 0,
+    userActivity: [], // Ensure this is always an array
   });
 
   const [filter, setFilter] = useState({
@@ -52,9 +53,10 @@ const ReportsDashboard = () => {
       <div>
         <h3>Case Statistics</h3>
         <p>Total Cases: {reports.totalCases}</p>
-        <p>Active Cases: {reports.activeCases}</p>
-        <p>Completed Cases: {reports.completedCases}</p>
+        <p>Open Cases: {reports.openCases}</p>
+        <p>Closed Cases: {reports.closedCases}</p>
         <p>Pending Cases: {reports.pendingCases}</p>
+        <p>Dismissed Cases: {reports.dismissedCases}</p>
       </div>
 
       {/* Filters for Reports */}
@@ -69,9 +71,10 @@ const ReportsDashboard = () => {
         <label>Status:</label>
         <select name="status" value={filter.status} onChange={handleFilterChange}>
           <option value="">All</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
+          <option value="active">Open</option>
+          <option value="completed">Closed</option>
           <option value="pending">Pending</option>
+          <option value="pending">Dismissed</option>
         </select>
 
         <button onClick={handleGenerateReport}>Generate Report</button>
@@ -81,9 +84,14 @@ const ReportsDashboard = () => {
       <div>
         <h3>Admin Activity Log</h3>
         <ul>
-          {reports.userActivity.map((log, index) => (
-            <li key={index}>{log.action} - {log.timestamp}</li>
-          ))}
+        {Array.isArray(reports.userActivity) && reports.userActivity.length > 0 ? (
+            reports.userActivity.map((log, index) => (
+              <li key={index}>{log.action} - {log.timestamp}</li>
+            ))
+          ) : (
+            <p>No admin activity logs available.</p>
+          )}
+
         </ul>
       </div>
     </div>

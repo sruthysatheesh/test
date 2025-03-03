@@ -11,6 +11,9 @@ app.use(cors()); // Enable CORS
 const caseRoutes = require("./cases");
 app.use("/cases", caseRoutes);
 
+const reportsRoutes = require("./reports");
+app.use("/reports", reportsRoutes);
+
 // ✅ MySQL Connection
 const db = mysql.createConnection({
     host: "localhost",
