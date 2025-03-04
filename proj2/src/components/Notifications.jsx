@@ -9,6 +9,12 @@ const Notifications = () => {
     type: "email",
   });
 
+  const [newMessage, setNewMessage] = useState({
+    recipient: "",
+    message: "",
+    type: "text",
+  });
+
   useEffect(() => {
     fetchNotifications();
   }, []);
@@ -56,10 +62,11 @@ const Notifications = () => {
           value={newNotification.recipient}
           onChange={handleChange}
         />
-        <textarea
+        <input
+          type="text"
           name="message"
-          placeholder="Enter Notification Message"
-          value={newNotification.message}
+          placeholder="Enter Message"
+          value={newMessage.recipient}
           onChange={handleChange}
         />
         <select name="type" value={newNotification.type} onChange={handleChange}>
