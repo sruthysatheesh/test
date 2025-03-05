@@ -104,6 +104,63 @@ app.get("/users", (req, res) => {
     });
 });
 
+app.post("/users", (req, res) => {
+    const { username, email, full_name, phone, password, role } = req.body;
+
+    if (!username || !email || !full_name || !phone || !password || !role) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    let table;
+    if (role === "judge") table = "judges";
+    else if (role === "lawyer") table = "lawyers";
+    else if (role === "admin") table = "admins";
+    else if (role === "clerk") table = "clerk";
+    else return res.status(400).json({ error: "Invalid role" });
+
+    const sql = `INSERT INTO ${table} (username, email, full_name, phone, password) VALUES (?, ?, ?, ?, ?)`;
+
+    db.query(sql, [username, email, full_name, phone, password], (err, result) => {
+        if (err) {
+            console.error("❌ Error inserting user:", err.sqlMessage);
+            return res.status(500).json({ error: "Database error", details: err.sqlMessage });
+        }
+
+        res.json({ message: "User added successfully", userId: result.insertId, role });
+    });
+});
+
+app.delete("/users/:id", (req, res) => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!id || !role) {
+        return res.status(400).json({ error: "User ID and role are required" });
+    }
+
+    let table;
+    if (role === "judge") table = "judges";
+    else if (role === "lawyer") table = "lawyers";
+    else if (role === "clerk") table = "clerk";
+    else return res.status(400).json({ error: "Invalid role" });
+
+    const sql = `DELETE FROM ${table} WHERE id = ?`;
+
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("❌ Error deleting user:", err.sqlMessage);
+            return res.status(500).json({ error: "Database error", details: err.sqlMessage });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json({ message: "User deleted successfully", userId: id, role });
+    });
+});
+
+
 // ✅ Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
     const token = req.headers["authorization"];

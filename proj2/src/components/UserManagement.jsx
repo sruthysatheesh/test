@@ -45,21 +45,25 @@ const UserManagement = () => {
     }
   };
 
-  // 🔹 Handle Delete User
-  const handleDeleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchUsers(); // Refresh user list
-      if (selectedUser?.id === id) setSelectedUser(null); // Clear selected user if deleted
-    } catch (err) {
-      setError("Error deleting user. Please try again.");
-      console.error("Error deleting user:", err.response?.data || err.message);
-    }
-  };
+  // 🔹 Handle Delete User (Fix: Include Role in Request)
+const handleDeleteUser = async (id, role) => {
+  if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    await axios.delete(`http://localhost:5000/users/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { role }, // ✅ Fix: Sending role in request body
+    });
+
+    fetchUsers(); // Refresh user list
+    if (selectedUser?.id === id) setSelectedUser(null); // Clear selected user if deleted
+  } catch (err) {
+    setError("Error deleting user. Please try again.");
+    console.error("Error deleting user:", err.response?.data || err.message);
+  }
+};
+
 
   // 🔹 Handle View User
   const handleViewUser = (id) => {
@@ -135,7 +139,10 @@ const UserManagement = () => {
           <p><strong>📞 Phone:</strong> {selectedUser.phone}</p>
           <p><strong>🏛 Role:</strong> {selectedUser.role}</p>
           <button onClick={() => setSelectedUser(null)}>Close</button>
-          <button onClick={() => handleDeleteUser(selectedUser.id)}>Delete</button>
+          <button onClick={() => handleDeleteUser(selectedUser.id, selectedUser.role)}>
+  Delete
+</button>
+
         </div>
       )}
     </div>
