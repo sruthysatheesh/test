@@ -5,14 +5,16 @@ const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // Enable CORS
-
+app.use(cors()); // Enable CO
 // ✅ Import Cases Routes
 const caseRoutes = require("./cases");
 app.use("/cases", caseRoutes);
 
 const reportsRoutes = require("./reports");
 app.use("/reports", reportsRoutes);
+
+const judgmentsRouter = require("./judgments");
+app.use("/judgments", judgmentsRouter)
 
 // ✅ MySQL Connection
 const db = mysql.createConnection({
@@ -60,7 +62,7 @@ app.post("/login", (req, res) => {
         // ✅ Generate JWT token
         const token = jwt.sign({ id: user.id, username: user.username, role }, "your_secret_key", { expiresIn: "1h" });
         res.json({ message: "Login successful", token, userId: user.id, role });
-    });
+    });   
 });
 
 // ✅ GET User by ID

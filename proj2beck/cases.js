@@ -27,6 +27,33 @@ router.get("/judges", (req, res) => {
         res.json(results);
     });
 });
+router.get("/judges/cases", (req, res) => {
+    const { judge_id } = req.query; // Corrected to match request query
+
+    if (!judge_id) {
+        return res.status(400).json({ error: "Judge ID is required." });
+    }
+
+    const sql = 
+        `SELECT c.case_id, c.case_title, c.status, c.case_actions, 
+               j.full_name AS judge_name, 
+               l.full_name AS lawyer_name
+        FROM cases c
+        LEFT JOIN judges j ON c.judge_id = j.id
+        LEFT JOIN lawyers l ON c.lawyer_id = l.id
+        WHERE c.judge_id = ?
+        ORDER BY c.created_at DESC;
+    ;`
+
+    db.query(sql, [judge_id], (err, results) => {
+        if (err) {
+            console.error("❌ Database error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        res.json(results);
+    });
+});
+
 
 // ✅ Fetch Lawyers
 router.get("/lawyers", (req, res) => {
@@ -38,15 +65,15 @@ router.get("/lawyers", (req, res) => {
 
 // ✅ Fetch Cases
 router.get("/", (req, res) => {
-    const sql = `
-        SELECT c.case_id, c.case_title, c.status, c.case_actions, 
+    const sql = 
+        `SELECT c.case_id, c.case_title, c.status, c.case_actions, 
                j.full_name AS judge_name, 
                l.full_name AS lawyer_name
         FROM cases c
         LEFT JOIN judges j ON c.judge_id = j.id
         LEFT JOIN lawyers l ON c.lawyer_id = l.id
         ORDER BY c.created_at DESC;
-    `;
+    ;`
 
     db.query(sql, (err, results) => {
         if (err) {
@@ -56,7 +83,6 @@ router.get("/", (req, res) => {
         res.json(results);
     });
 });
-
 // ✅ Add Case with File Upload
 router.post("/", upload.array("documents", 5), (req, res) => {
     const { case_title, judge_id, lawyer_id, status, case_actions } = req.body;
