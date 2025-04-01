@@ -1,13 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Slab:wght@400;600;700&family=Roboto+Slab:wght@400;500;700&display=swap');
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Roboto Slab', serif;
   line-height: 1.5;
   font-weight: 400;
-
+  
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -16,6 +17,7 @@
 
 a {
   font-weight: 500;
+  font-family: 'Roboto Slab', serif;
   color: #646cff;
   text-decoration: inherit;
 }
@@ -29,42 +31,158 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  
+  /* Enhanced background with overlay */
+  background: 
+    linear-gradient(rgba(36, 36, 36, 0.85), rgba(36, 36, 36, 0.85)),
+    url('/jude.jpg') center/cover no-repeat fixed;
+  
+  position: relative;
 }
 
+/* Dark overlay pseudo-element for better content readability */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: -1;
+}
+
+/* Main content container */
+.main-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  padding: 2rem;
+}
+
+/* Titles */
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 3rem;
+  font-family: 'Josefin Slab', serif;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+h2 {
+  font-size: 2.5rem;
+  font-family: 'Josefin Slab', serif;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h3 {
+  font-size: 2rem;
+  font-family: 'Josefin Slab', serif;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Subtitles */
+h4 {
+  font-size: 1.75rem;
+  font-family: 'Roboto Slab', serif;
+  font-weight: 400;
+}
+
+h5 {
+  font-size: 1.5rem;
+  font-family: 'Roboto Slab', serif;
+  font-weight: 400;
+}
+
+h6 {
+  font-size: 1.25rem;
+  font-family: 'Roboto Slab', serif;
+  font-weight: 300;
+}
+
+/* Adjust for smaller screens */
+@media (max-width: 768px) {
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.75rem; }
+  h4 { font-size: 1.5rem; }
+  h5 { font-size: 1.25rem; }
+  h6 { font-size: 1rem; }
+  
+  body {
+    background-attachment: scroll; /* Better performance on mobile */
+  }
+}
+
+/* Paragraphs and Subtitles */
+p {
+  font-family: 'Roboto Slab', serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* Enhanced buttons */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
   background-color: #2c3e50;
-  transition: border-color 0.25s;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
 button:hover {
   border-color: #646cff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Cards or content containers */
+.card {
+  background: rgba(44, 62, 80, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
-    color: #ccd5dc;
-    background-color: #ffffff;
+    color: #2c3e50;
+    background-color: #f8f9fa;
   }
+  
+  body {
+    background: 
+      linear-gradient(rgba(248, 249, 250, 0.85), rgba(248, 249, 250, 0.85)),
+      url('/download.jpeg') center/cover no-repeat fixed;
+  }
+  
+  body::after {
+    background: rgba(255, 255, 255, 0.6);
+  }
+  
   a:hover {
     color: #747bff;
   }
+  
   button {
-    background-color: #f9f9f9;
+    background-color: #3a5169;
+    color: white;
+  }
+  
+  .card {
+    background: rgba(255, 255, 255, 0.85);
   }
 }

@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./user-management.css";
-
+import "./UserManagement.css"; // Import the CSS file
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ username: "", password: "", email: "", full_name:"", phone:"", role: "judge" });
+  const [newUser, setNewUser] = useState({ username: "", password: "", full_name: "" }); // Add full_name
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null); // State to store selected user details
 
   // 🔹 Fetch Users from Backend
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token"); // Get JWT token
       const res = await axios.get("http://localhost:5000/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -31,119 +29,109 @@ const UserManagement = () => {
   }, []);
 
   // 🔹 Handle Create User
-  const handleCreateUser = async () => {
+  const handleCreateUser = async (table) => {
+    if (!newUser.username || !newUser.password) {
+      setError("Username and password are required.");
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/users", newUser, {
+      await axios.post(`http://localhost:5000/users?table=${table}`, newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
-      setNewUser({ username: "", password: "", email: "", full_name: "", phone: "", role: "judge" });
+      setNewUser({ username: "", password: "" });
       fetchUsers(); // Refresh user list
     } catch (err) {
-      setError(err.response?.data?.message || "Error creating user. Please try again.");
+      setError("Error creating user. Please try again.");
+      console.error("Error creating user:", err.response?.data || err.message);
     }
   };
 
-  // 🔹 Handle Delete User (Fix: Include Role in Request)
-const handleDeleteUser = async (id, role) => {
-  if (!window.confirm("Are you sure you want to delete this user?")) return;
-
-  try {
-    const token = localStorage.getItem("token");
-    await axios.delete(`http://localhost:5000/users/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      data: { role }, // ✅ Fix: Sending role in request body
-    });
-
-    fetchUsers(); // Refresh user list
-    if (selectedUser?.id === id) setSelectedUser(null); // Clear selected user if deleted
-  } catch (err) {
-    setError("Error deleting user. Please try again.");
-    console.error("Error deleting user:", err.response?.data || err.message);
-  }
-};
-
-
-  // 🔹 Handle View User
-  const handleViewUser = (id) => {
-    const user = users.find((u) => u.id === id);
-    setSelectedUser(user || null); // Set selected user for display
+  // 🔹 Handle Delete User
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:5000/users/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchUsers(); // Refresh user list
+    } catch (err) {
+      setError("Error deleting user. Please try again.");
+      console.error("Error deleting user:", err.response?.data || err.message);
+    }
   };
 
   return (
-    <div>
-      <h3>👥 User Management</h3>
+    <div className="user-management">
+      <h3 className="user-management-title">👥 User Management</h3>
 
       {/* 🔹 Error Display */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      {/* 🔹 Create User Form */}
-      <div>
-        <input type="text" placeholder="Username" name="username" 
-          value={newUser.username} 
-          onChange={(e) => setNewUser({ ...newUser, username: e.target.value })} />
-
-        <input type="password" placeholder="Password" name="password" 
-          value={newUser.password} 
-          onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} />
-
-        <input type="text" placeholder="Email" name="email" 
-          value={newUser.email} 
-          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} />
-          
-        <input type="text" placeholder="Full Name" name="full_name" 
-          value={newUser.full_name} 
-          onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} />
-
-        <input type="text" placeholder="Phone" name="phone" 
-          value={newUser.phone} 
-          onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} />
-
-        <select name="role" value={newUser.role} 
-          onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
-          <option value="clerk">Clerk</option>
-          <option value="judge">Judge</option>
-          <option value="lawyer">Lawyer</option>
-          <option value="admin">Admin</option>
-        </select>
-
-        <button onClick={handleCreateUser}>Create User</button>
-      </div>
+      // 🔹 Create User Form
+<div className="create-user-form">
+    <input
+        type="text"
+        placeholder="Full Name"
+        name="full_name"
+        value={newUser.full_name}
+        onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+        className="form-input"
+    />
+    <input
+        type="text"
+        placeholder="Username"
+        name="username"
+        value={newUser.username}
+        onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+        className="form-input"
+    />
+    <input
+        type="password"
+        placeholder="Password"
+        name="password"
+        value={newUser.password}
+        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+        className="form-input"
+    />
+    <button onClick={() => handleCreateUser("judges")} className="form-button">
+        Create Judge
+    </button>
+    <button onClick={() => handleCreateUser("lawyers")} className="form-button">
+        Create Lawyer
+    </button>
+    <button onClick={() => handleCreateUser("clerk")} className="form-button">
+        Create Clerk
+    </button>
+    <button onClick={() => handleCreateUser("admins")} className="form-button">
+        Create Admin
+    </button>
+</div>
 
       {/* 🔹 Display User List */}
       {loading ? (
-        <p>Loading users...</p>
+        <p className="loading-message">Loading users...</p>
       ) : (
-        <ul>
+        <ul className="user-list">
           {users.length === 0 ? (
-            <p>No users found.</p>
+            <p className="no-users-message">No users found.</p>
           ) : (
             users.map((user) => (
-              <li key={user.id}>
-                {user.username} ({user.role}) 
-                <button onClick={() => handleViewUser(user.id)}>View</button>
+              <li key={user.id} className="user-item">
+                <span className="user-info">
+                  {user.username} <span className="user-role">({user.role})</span>
+                </span>
+                <button
+                  onClick={() => handleDeleteUser(user.id)}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
               </li>
             ))
           )}
         </ul>
-      )}
-
-      {/* 🔹 Display Selected User Details */}
-      {selectedUser && (
-        <div style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
-          <h4>📌 User Details</h4>
-          <p><strong>👤 Username:</strong> {selectedUser.username}</p>
-          <p><strong>📧 Email:</strong> {selectedUser.email}</p>
-          <p><strong>🏷 Full Name:</strong> {selectedUser.full_name}</p>
-          <p><strong>📞 Phone:</strong> {selectedUser.phone}</p>
-          <p><strong>🏛 Role:</strong> {selectedUser.role}</p>
-          <button onClick={() => setSelectedUser(null)}>Close</button>
-          <button onClick={() => handleDeleteUser(selectedUser.id, selectedUser.role)}>
-  Delete
-</button>
-
-        </div>
       )}
     </div>
   );

@@ -1,9 +1,8 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import CaseManagement from "./components/CaseManagement";
+import JudgeCaseManagement from "./components/JudgeCaseManagement";
 import CourtSessions from "./components/CourtSessions";
 import Documents from "./components/Documents";
-import Notifications from "./components/Notifications";
 import "./AdminDashboard.css"; 
 
 const LawyerDashboard = () => {
@@ -17,7 +16,6 @@ const LawyerDashboard = () => {
             <li><Link to="/lawyer-dashboard/cases">Case Management</Link></li>
             <li><Link to="/lawyer-dashboard/sessions">Court Sessions</Link></li>
             <li><Link to="/lawyer-dashboard/documents">Documents</Link></li>
-            <li><Link to="/lawyer-dashboard/notifications">Notifications</Link></li>
           </ul>
         </nav>
       </div>
@@ -25,10 +23,9 @@ const LawyerDashboard = () => {
       {/* Main Content */}
       <div className="main-content">
         <Routes>
-          <Route path="cases" element={<CaseManagement />} />
+          <Route path="cases" element={<JudgeCaseManagement />} />
           <Route path="sessions" element={<CourtSessions />} />
           <Route path="documents" element={<Documents />} />
-          <Route path="notifications" element={<Notifications />} />
         </Routes>
       </div>
     </div>

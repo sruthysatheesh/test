@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './LoginPage.css'; // Import the CSS file
+import './LoginPage.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,9 +10,12 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [animate, setAnimate] = useState(false);
   
-  // Extract role from the URL query parameter
   useEffect(() => {
+    // Trigger initial animations
+    setAnimate(true);
+    
     const queryParams = new URLSearchParams(location.search);
     const selectedRole = queryParams.get('role');
     if (selectedRole) {
@@ -47,42 +50,49 @@ const Login = () => {
             throw new Error(errorData.message || 'Invalid credentials');
         }
 
-        const data = await response.json(); // ✅ Parse response JSON
+        const data = await response.json();
 
         if (data && data.token && data.userId) {
-            console.log('✅ Login successful', data);
-            localStorage.setItem('token', data.token); // ✅ Store token
-            navigate(`/${role}-dashboard/${data.userId}`); // ✅ Corrected userId reference
+            console.log('Login successful', data);
+            localStorage.setItem('token', data.token);
+            
+            // Add success animation before navigation
+            document.querySelector('.login-container').classList.add('success-animate');
+            setTimeout(() => {
+                navigate(`/${role}-dashboard/${data.userId}`);
+            }, 1000);
         } else {
             throw new Error('Invalid response from server');
         }
     } catch (error) {
-        console.error('❌ Login error:', error.message);
+        console.error('Login error:', error.message);
         setErrorMessage(error.message);
+        document.querySelector('.login-container').classList.add('error-animate');
     } finally {
         setLoading(false);
     }
-};
+  };
 
   return (
-    <div className="login-container">
+    <div className={`login-container ${animate ? 'animate-in' : ''}`}>
       {/* Left Section: Welcome Message */}
       <div className="welcome-section">
-        <h1 className="welcome-title">Welcome to the Judiciary System</h1>
-        <p className="welcome-text">
+        <h1 className="welcome-title animate-text-pop">Welcome to the Judiciary System</h1>
+        <p className="welcome-text animate-text-fade">
           The Judiciary System Management platform is designed to streamline judicial processes, ensuring efficiency, transparency, and security for all users.
         </p>
-        <p className="welcome-text">
+        <p className="welcome-text animate-text-fade">
           Please log in to access your account and continue your work.
         </p>
       </div>
 
       {/* Right Section: Login Form */}
       <div className="login-card">
-        <h2 className="login-title">Login to Your Account</h2>
-        <p className="login-subtitle">Enter your credentials to access the system</p>
+        <h2 className="login-title animate-text-slide-up">Login to Your Account</h2>
+        <p className="login-subtitle animate-text-fade-in">Enter your credentials to access the system</p>
+        
         <form className="login-form" onSubmit={handleLogin}>
-          <div className="form-group">
+          <div className="form-group animate-form-field" style={{ animationDelay: '0.2s' }}>
             <label htmlFor="username">Username</label>
             <input
               type="text"
@@ -90,9 +100,11 @@ const Login = () => {
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              className="input-animate"
             />
           </div>
-          <div className="form-group">
+          
+          <div className="form-group animate-form-field" style={{ animationDelay: '0.4s' }}>
             <label htmlFor="password">Password</label>
             <input
               type="password"
@@ -100,13 +112,30 @@ const Login = () => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="input-animate"
             />
           </div>
-          <button type="submit" disabled={loading} className="login-button">
-            {loading ? <span className="loading-text">Logging in...</span> : 'Login'}
+          
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className={`login-button ${loading ? 'button-loading' : ''}`}
+          >
+            {loading ? (
+              <span className="loading-text">
+                <span className="loading-dots">.</span>
+                <span className="loading-dots">.</span>
+                <span className="loading-dots">.</span>
+              </span>
+            ) : 'Login'}
           </button>
         </form>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        
+        {errorMessage && (
+          <p className="error-message animate-error">
+            {errorMessage}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./CaseManagement.css"; // Assuming you have a CSS file for styling
 
 const CaseManagement = () => {
     const [newCaseTitle, setNewCaseTitle] = useState("");
@@ -57,7 +58,7 @@ const CaseManagement = () => {
 
     // ✅ Add Case
     const handleAddCase = async () => {
-        if (!newCaseTitle || !selectedJudgeId || !selectedLawyerId || !newCaseActions || caseDocuments.length === 0) {
+        if (!newCaseTitle || !selectedJudgeId || !selectedLawyerId || !newCaseActions === 0) {
             alert("❌ All fields are required!");
             return;
         }
@@ -88,66 +89,147 @@ const CaseManagement = () => {
     };
 
     return (
-        <div>
-            <h2>Case Management</h2>
-            <div>
-                <h3>Add Case</h3>
-                <input type="text" placeholder="Enter Case Title" value={newCaseTitle} onChange={(e) => setNewCaseTitle(e.target.value)} />
-                <select value={newCaseStatus} onChange={(e) => setNewCaseStatus(e.target.value)}>
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Dismissed">Dismissed</option>
-                </select>
-
-                <select value={selectedJudgeId} onChange={(e) => setSelectedJudgeId(e.target.value)}>
-                    <option value="">Select Judge</option>
-                    {judges.map((judge) => (
-                        <option key={judge.id} value={judge.id}>{judge.full_name || judge.username}</option>
-                    ))}
-                </select>
-
-                <select value={selectedLawyerId} onChange={(e) => setSelectedLawyerId(e.target.value)}>
-                    <option value="">Select Lawyer</option>
-                    {lawyers.map((lawyer) => (
-                        <option key={lawyer.id} value={lawyer.id}>{lawyer.full_name || lawyer.username}</option>
-                    ))}
-                </select>
-
-                <input type="text" placeholder="Enter Case Actions" value={newCaseActions} onChange={(e) => setNewCaseActions(e.target.value)} />
-                <input type="file" multiple onChange={handleFileChange} />
-                <button onClick={handleAddCase}>Add Case</button>
+        <div className="case-management">
+            <div className="floating-shapes">
+                <div></div>
+                <div></div>
             </div>
-
-            <h3>Cases List</h3>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Judge</th>
-                        <th>Lawyer</th>
-                        <th>Case Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {cases.length === 0 ? (
-                        <tr><td colSpan="6">⚠ No Cases Found</td></tr>
-                    ) : (
-                        cases.map((caseItem, index) => (
-                            <tr key={index}>
-                                <td>{caseItem.case_id}</td>
-                                <td>{caseItem.case_title}</td>
-                                <td>{caseItem.status}</td>
-                                <td>{caseItem.judge_name || "⚠ No Judge Assigned"}</td>
-                                <td>{caseItem.lawyer_name || "⚠ No Lawyer Assigned"}</td>
-                                <td>{caseItem.case_actions}</td>
+            
+            <h2>Case Management</h2>
+            
+            <div className="add-case-form">
+                <h3>Add New Case</h3>
+                <div className="form-grid">
+                    <div className="form-group">
+                        <label>Case Title</label>
+                        <input 
+                            type="text" 
+                            className="form-control" 
+                            placeholder="Enter Case Title" 
+                            value={newCaseTitle} 
+                            onChange={(e) => setNewCaseTitle(e.target.value)} 
+                        />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label>Status</label>
+                        <select 
+                            className="form-control" 
+                            value={newCaseStatus} 
+                            onChange={(e) => setNewCaseStatus(e.target.value)}
+                        >
+                            <option value="Open">Open</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Dismissed">Dismissed</option>
+                        </select>
+                    </div>
+                    
+                    <div className="form-group">
+                        <label>Assigned Judge</label>
+                        <select 
+                            className="form-control" 
+                            value={selectedJudgeId} 
+                            onChange={(e) => setSelectedJudgeId(e.target.value)}
+                        >
+                            <option value="">Select Judge</option>
+                            {judges.map((judge) => (
+                                <option key={judge.id} value={judge.id}>
+                                    {judge.full_name || judge.username}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    
+                    <div className="form-group">
+                        <label>Assigned Lawyer</label>
+                        <select 
+                            className="form-control" 
+                            value={selectedLawyerId} 
+                            onChange={(e) => setSelectedLawyerId(e.target.value)}
+                        >
+                            <option value="">Select Lawyer</option>
+                            {lawyers.map((lawyer) => (
+                                <option key={lawyer.id} value={lawyer.id}>
+                                    {lawyer.full_name || lawyer.username}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                
+                <div className="form-group">
+                    <label>Case Actions</label>
+                    <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="Enter Case Actions" 
+                        value={newCaseActions} 
+                        onChange={(e) => setNewCaseActions(e.target.value)} 
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <div className="file-upload">
+                        <label className="file-upload-label">
+                            {caseDocuments.length > 0 
+                                ? `${caseDocuments.length} file(s) selected` 
+                                : "Drag & drop files or click to browse"}
+                            <input 
+                                type="file" 
+                                className="file-upload-input" 
+                                multiple 
+                                onChange={handleFileChange} 
+                            />
+                        </label>
+                    </div>
+                </div>
+                
+                <button className="submit-btn" onClick={handleAddCase}>
+                    Add Case
+                </button>
+            </div>
+            
+            <div className="cases-table-container">
+                <h3>Cases List</h3>
+                {cases.length === 0 ? (
+                    <div className="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>No cases found. Add your first case above.</p>
+                    </div>
+                ) : (
+                    <table className="cases-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Judge</th>
+                                <th>Lawyer</th>
+                                <th>Actions</th>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            {cases.map((caseItem) => (
+                                <tr key={caseItem.case_id}>
+                                    <td>{caseItem.case_id}</td>
+                                    <td>{caseItem.case_title}</td>
+                                    <td>
+                                        <span className={`status-badge status-${caseItem.status.toLowerCase()}`}>
+                                            {caseItem.status}
+                                        </span>
+                                    </td>
+                                    <td>{caseItem.judge_name || "Not assigned"}</td>
+                                    <td>{caseItem.lawyer_name || "Not assigned"}</td>
+                                    <td>{caseItem.case_actions}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
         </div>
     );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./CourtSessions.css"; // Assuming you have a CSS file for styling
 
 const CourtSessions = () => {
     const [hearings, setHearings] = useState([]);
@@ -100,110 +101,156 @@ const CourtSessions = () => {
   
   
 
-    return (
-        <div>
-            <h2>📌 Manage Court Cases & Hearings</h2>
-
-            {/* ✅ SEARCH BAR */}
+  return (
+    <div className="court-sessions">
+        <div className="floating-shapes">
+            <div></div>
+            <div></div>
+        </div>
+        
+        <h2>Manage Court Cases & Hearings</h2>
+        
+        <div className="search-bar">
             <input
                 type="text"
-                placeholder="🔍 Search cases..."
+                className="search-input"
+                placeholder="Search cases..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ marginBottom: "10px", padding: "5px", width: "100%" }}
             />
-
-            {/* ✅ ADD CASE FORM */}
-            <h3>➕ Add New Case</h3>
-            <input
-                type="text"
-                placeholder="Case Title"
-                value={newCase.case_title}
-                onChange={(e) => setNewCase({ ...newCase, case_title: e.target.value })}
-                style={{ marginBottom: "10px", padding: "5px", width: "100%" }}
-            />
-            <select
-                value={newCase.judge_id}
-                onChange={(e) => setNewCase({ ...newCase, judge_id: e.target.value })}
-                style={{ marginBottom: "10px", padding: "5px", width: "100%" }}
-            >
-                <option value="">Select Judge</option>
-                {judges.map((j) => (
-                    <option key={j.id} value={j.id}>{j.username}</option>
-                ))}
-            </select>
-            <button onClick={handleAddCase} style={{ padding: "8px", cursor: "pointer" }}>
+        </div>
+        
+        <div className="add-case-form">
+            <h3>Add New Case</h3>
+            <div className="form-grid">
+                <div className="form-group">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Case Title"
+                        value={newCase.case_title}
+                        onChange={(e) => setNewCase({ ...newCase, case_title: e.target.value })}
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <select
+                        className="form-control"
+                        value={newCase.judge_id}
+                        onChange={(e) => setNewCase({ ...newCase, judge_id: e.target.value })}
+                    >
+                        <option value="">Select Judge</option>
+                        {judges.map((j) => (
+                            <option key={j.id} value={j.id}>{j.username}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+            
+            <button className="btn btn-primary" onClick={handleAddCase}>
                 Add Case & Schedule Hearing
             </button>
-
-            {/* ✅ VIEW CASES */}
-            <h3>📜 Cases</h3>
-            <table border="1" style={{ width: "100%", textAlign: "left" }}>
-                <thead>
-                    <tr>
-                        <th>Case Title</th>
-                        <th>Judge</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {cases
-                        .filter((c) => c.case_title.toLowerCase().includes(searchTerm.toLowerCase()))
-                        .map((c) => (
-                            <tr key={c.case_id}>
-                                <td>{c.case_title}</td>
-                                <td>{c.judge_name}</td>
-                                <td>{c.status}</td>
+        </div>
+        
+        <div className="cases-table-container">
+            <h3>Cases</h3>
+            {cases.length === 0 ? (
+                <div className="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p>No cases found. Add your first case above.</p>
+                </div>
+            ) : (
+                <table className="session-table">
+                    <thead>
+                        <tr>
+                            <th>Case Title</th>
+                            <th>Judge</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cases
+                            .filter((c) => c.case_title.toLowerCase().includes(searchTerm.toLowerCase()))
+                            .map((c) => (
+                                <tr key={c.case_id}>
+                                    <td>{c.case_title}</td>
+                                    <td>{c.judge_name}</td>
+                                    <td>
+                                        <span className={`status-badge status-${c.status.toLowerCase()}`}>
+                                            {c.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {c.status !== "Closed" && (
+                                            <button 
+                                                className="btn btn-danger"
+                                                onClick={() => handleCloseCase(c.case_id)}
+                                            >
+                                                Close Case
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
+        
+        <div className="hearings-table-container">
+            <h3>Scheduled Hearings</h3>
+            {hearings.length === 0 ? (
+                <div className="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p>No hearings scheduled yet.</p>
+                </div>
+            ) : (
+                <table className="session-table">
+                    <thead>
+                        <tr>
+                            <th>Case Title</th>
+                            <th>Judge</th>
+                            <th>Hearing Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {hearings.map((hearing) => (
+                            <tr key={hearing.hearing_id}>
+                                <td>{hearing.case_title}</td>
+                                <td>{hearing.judge_name}</td>
                                 <td>
-                                    {c.status !== "Closed" && (
-                                        <button onClick={() => handleCloseCase(c.case_id)}>❌ Close Case</button>
-                                    )}
+                                    <input
+                                        type="datetime-local"
+                                        className="date-input"
+                                        value={new Date(hearing.hearing_date).toISOString().slice(0, 16)}
+                                        onChange={(e) => handleEditHearing(hearing.hearing_id, e.target.value, hearing.status)}
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        className="form-control"
+                                        value={hearing.status}
+                                        onChange={(e) => handleEditHearing(hearing.hearing_id, hearing.hearing_date, e.target.value)}
+                                    >
+                                        <option value="Scheduled">Scheduled</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
                                 </td>
                             </tr>
                         ))}
-                </tbody>
-            </table>
-
-            {/* ✅ VIEW HEARINGS LIST */}
-            <h3>📜 Scheduled Hearings</h3>
-            <table border="1" style={{ width: "100%", textAlign: "left" }}>
-                <thead>
-                    <tr>
-                        <th>Case Title</th>
-                        <th>Judge</th>
-                        <th>Hearing Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {hearings.map((hearing) => (
-                        <tr key={hearing.hearing_id}>
-                            <td>{hearing.case_title}</td>
-                            <td>{hearing.judge_name}</td>
-                            <td>
-                                <input
-                                    type="datetime-local"
-                                    value={new Date(hearing.hearing_date).toISOString().slice(0, 16)}
-                                    onChange={(e) => handleEditHearing(hearing.hearing_id, e.target.value, hearing.status)}
-                                />
-                            </td>
-                            <td>
-                                <select
-                                    value={hearing.status}
-                                    onChange={(e) => handleEditHearing(hearing.hearing_id, hearing.hearing_date, e.target.value)}
-                                >
-                                    <option value="Scheduled">Scheduled</option>
-                                    <option value="Completed">Completed</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                </select>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            )}
         </div>
-    );
+    </div>
+);
 };
 
 export default CourtSessions;

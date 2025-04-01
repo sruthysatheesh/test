@@ -1,5 +1,5 @@
 const express = require("express");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const multer = require("multer");
 const cors = require("cors");
 
@@ -45,15 +45,18 @@ router.get("/judges/cases", (req, res) => {
         ORDER BY c.created_at DESC;
     ;`
 
+    console.log("Executing SQL Query:", sql); // Debug log
+    console.log("Judge ID:", judge_id); // Debug log
+
     db.query(sql, [judge_id], (err, results) => {
         if (err) {
             console.error("❌ Database error:", err);
             return res.status(500).json({ error: "Database error" });
         }
+        console.log("Query Results:", results); // Debug log
         res.json(results);
     });
 });
-
 
 // ✅ Fetch Lawyers
 router.get("/lawyers", (req, res) => {

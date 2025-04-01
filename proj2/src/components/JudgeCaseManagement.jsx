@@ -83,7 +83,7 @@ const [lawyers, setLawyers] = useState([]);
                         ))
                     )}
                 </tbody>
-            </table>
+                </table>
         </div>
     );
 };

@@ -1,6 +1,7 @@
+// Update your RoleSelection.jsx with these animation additions
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './RoleSelection.css'; // Import the updated CSS file
+import './RoleSelection.css';
 
 const RoleSelection = () => {
   const navigate = useNavigate();
@@ -13,63 +14,38 @@ const RoleSelection = () => {
 
   return (
     <div className="role-selection-container">
-      {/* Header Section */}
       <header className="header">
-        <h1 className="header-title">Judiciary System Management</h1>
-        <p className="header-subtitle">Streamlining Judicial Processes for Efficiency and Security</p>
+        <h1 className="header-title animate-text-pop">JUDICIARY MANAGEMENT SYSTEM</h1>
+        <p className="lines">------------------------------------------------------------------------------------------------------------</p>
+        <p className="header-subtitle animate-text-fade">Streamlining Judicial Processes for Efficiency and Security</p>
+        <p className="lines">------------------------------------------------------------------------------------------------------------</p>
       </header>
 
-      {/* Role Cards Section */}
       <div className="role-cards">
-
-      <div
-          className="role-card clerk"
-          onClick={() => handleRoleSelection('clerk')}
-        >
-          <div className="role-icon">
-            <i className="fas fa-gavel"></i>
+        {[
+          { role: 'clerk', icon: 'fa-gavel', title: 'Clerk', desc: 'Manage cases, upload documents and schedule hearings.' },
+          { role: 'lawyer', icon: 'fa-balance-scale', title: 'Lawyer', desc: 'Access case files, submit documents, and manage client information.' },
+          { role: 'judge', icon: 'fa-gavel', title: 'Judge', desc: 'Review cases, make rulings, and oversee court proceedings.' },
+          { role: 'admin', icon: 'fa-user-shield', title: 'Admin', desc: 'Manage system users, roles, and permissions.' }
+        ].map((item) => (
+          <div
+            key={item.role}
+            className={`role-card ${item.role}`}
+            onClick={() => handleRoleSelection(item.role)}
+          >
+            <div className="icon-circle">
+              <div className="role-icon">
+                <i className={`fas ${item.icon}`}></i>
+              </div>
+            </div>
+            <h2 className="role-title animate-text-slide-up">{item.title}</h2>
+            <p className="role-description animate-text-fade-in">{item.desc}</p>
           </div>
-          <h2 className="role-title">Clerk</h2>
-          <p className="role-description">Manage cases, upload documents and schedule hearings.</p>
-        </div>
-
-        <div
-          className="role-card lawyer"
-          onClick={() => handleRoleSelection('lawyer')}
-        >
-          <div className="role-icon">
-            <i className="fas fa-balance-scale"></i>
-          </div>
-          <h2 className="role-title">Lawyer</h2>
-          <p className="role-description">Access case files, submit documents, and manage client information.</p>
-        </div>
-
-        <div
-          className="role-card judge"
-          onClick={() => handleRoleSelection('judge')}
-        >
-          <div className="role-icon">
-            <i className="fas fa-gavel"></i>
-          </div>
-          <h2 className="role-title">Judge</h2>
-          <p className="role-description">Review cases, make rulings, and oversee court proceedings.</p>
-        </div>
-
-        <div
-          className="role-card admin"
-          onClick={() => handleRoleSelection('admin')}
-        >
-          <div className="role-icon">
-            <i className="fas fa-user-shield"></i>
-          </div>
-          <h2 className="role-title">Admin</h2>
-          <p className="role-description">Manage system users, roles, and permissions.</p>
-        </div>
+        ))}
       </div>
 
-      {/* Footer Section */}
       <footer className="footer">
-        <p className="footer-text">© 2023 Judiciary System Management. All rights reserved.</p>
+        <p className="footer-text animate-text-glow">© 2023 Judiciary System Management. All rights reserved.</p>
       </footer>
     </div>
   );

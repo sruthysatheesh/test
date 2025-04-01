@@ -5,7 +5,7 @@ import Login from "./Login";
 import JudgeDashboard from "./JudgeDashboard";
 import LawyerDashboard from "./LawyerDashboard";
 import AdminDashboard from "./AdminDashboard";
-import ClerkDashboard from "./ClerkDashboard"; // ✅ Added missing import
+import ClerkDashboardRoutes from "./ClerkDashboardRoutes"; // Changed to use ClerkDashboardRoutes
 
 const App = () => {
   return (
@@ -16,7 +16,7 @@ const App = () => {
         <Route path="/judge-dashboard/*" element={<JudgeDashboard />} />
         <Route path="/lawyer-dashboard/*" element={<LawyerDashboard />} />
         <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
-        <Route path="/clerk-dashboard/*" element={<ClerkDashboard />} /> {/* ✅ Now works correctly */}
+        <Route path="/clerk-dashboard/*" element={<ClerkDashboardRoutes />} />
       </Routes>
     </Router>
   );

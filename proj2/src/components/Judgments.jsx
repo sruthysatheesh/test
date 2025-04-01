@@ -13,6 +13,7 @@ const Judgments = () => {
   const fetchJudgments = async () => {
     try {
       const res = await axios.get("http://localhost:5000/judgments");
+      console.log("API Response:", res.data); // Debugging API response
       setJudgments(res.data);
     } catch (err) {
       console.error("Error fetching judgments:", err);
@@ -29,6 +30,7 @@ const Judgments = () => {
 
   const applyFilters = async () => {
     try {
+      console.log("Applying Filters:", filters); // Debugging filters before API call
       const res = await axios.get("http://localhost:5000/judgments", { params: filters });
       setJudgments(res.data);
     } catch (err) {
@@ -53,7 +55,13 @@ const Judgments = () => {
 
       {/* Filters */}
       <div>
-        <input type="text" name="caseId" placeholder="Case ID" onChange={handleFilterChange} />
+        <input 
+          type="text" 
+          name="caseId" 
+          placeholder="Case ID" 
+          value={filters.caseId} 
+          onChange={handleFilterChange} 
+        />
         <input type="date" name="date" onChange={handleFilterChange} />
         <select name="status" onChange={handleFilterChange}>
           <option value="">All</option>
@@ -66,16 +74,38 @@ const Judgments = () => {
       {/* Judgment List */}
       <ul>
         {judgments.map((judgment, index) => (
-          <li key={index}>{judgment.caseId} - {judgment.summary} ({judgment.status})</li>
+          <li key={index}>
+            <p>
+              <strong>Case ID: </strong> {judgment.case_id ? judgment.case_id : "No Case ID"}  -   {judgment.summary} ({judgment.status})
+            </p>
+          </li>
         ))}
       </ul>
+
+
 
       {/* Add Judgment */}
       <div>
         <h3>Add Judgment</h3>
-        <input type="text" name="caseId" placeholder="Case ID" value={newJudgment.caseId} onChange={handleNewJudgmentChange} />
-        <textarea name="summary" placeholder="Summary" value={newJudgment.summary} onChange={handleNewJudgmentChange}></textarea>
-        <select name="status" value={newJudgment.status} onChange={handleNewJudgmentChange}>
+        <input 
+          type="text" 
+          name="caseId" 
+          placeholder="Case ID" 
+          value={newJudgment.caseId} 
+          onChange={handleNewJudgmentChange} 
+        />
+        <input 
+          type="text" 
+          name="summary" 
+          placeholder="Summary" 
+          value={newJudgment.summary} 
+          onChange={handleNewJudgmentChange} 
+        />
+        <select 
+          name="status" 
+          value={newJudgment.status} 
+          onChange={handleNewJudgmentChange}
+        >
           <option value="">Select Status</option>
           <option value="Finalized">Finalized</option>
           <option value="Pending">Pending</option>
