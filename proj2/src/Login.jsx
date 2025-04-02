@@ -59,7 +59,7 @@ const Login = () => {
             // Add success animation before navigation
             document.querySelector('.login-container').classList.add('success-animate');
             setTimeout(() => {
-                navigate(`/${role}-dashboard/${data.userId}`);
+                navigate(`/${role}-dashboard`);
             }, 1000);
         } else {
             throw new Error('Invalid response from server');
